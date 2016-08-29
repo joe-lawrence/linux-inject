@@ -1,0 +1,24 @@
+Demo program
+============
+
+Small and simple test program (test.c) and shared library (testlib.c).
+
+libupatch.so will patch a program function [A], a inter-library function
+[B] and an internal library variable [C].
+
+libupatch2.so further patches the program function [A'] and library
+function [B'].
+
+The program flow is as follows:
+
+  while(1) {
+  
+    pgm_function		/* program local function */        << [A]
+ 
+				/* libtest.so */
+    lib_function		/*   library public function */
+  
+      lib_private		/*   library private function */    << [B]
+      sleep(interval)		                                    << [C]
+  
+  }
