@@ -302,6 +302,7 @@ int main(int argc, char** argv)
 		free(newcode);
 		return 1;
 	}
+	printf("__libc_dlopen_mode() returned handle 0x%x\n", libAddr);
 
 	// now check /proc/pid/maps to see whether injection was successful.
 	if(checkloaded(target, libname))

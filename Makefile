@@ -22,6 +22,7 @@ x86: sample-target sample-library.so
 	
 x86_64:
 	$(CC) $(CFLAGS) -o inject utils.c ptrace.c inject-x86_64.c -ldl
+	$(CC) $(CFLAGS) -o unject utils.c ptrace.c unject-x86_64.c -ldl
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -shared -o sample-library.so -fPIC sample-library.c
 	$(CC) $(CFLAGS) -o sample-target sample-target.c
 	$(CC) -m32 $(CFLAGS) -o inject32 utils.c ptrace.c inject-x86.c -ldl
@@ -37,7 +38,7 @@ sample-target: sample-target.c
 clean:
 	rm -f sample-library.so
 	rm -f sample-target
-	rm -f inject
+	rm -f unject inject
 	rm -f sample-library32.so
 	rm -f sample-target32
 	rm -f inject32

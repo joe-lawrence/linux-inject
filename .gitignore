@@ -29,6 +29,7 @@
 *.hex
 
 # Specific binary names
+unject
 inject
 inject32
 sample-target
