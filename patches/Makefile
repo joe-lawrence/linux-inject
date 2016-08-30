@@ -27,5 +27,6 @@ test:
 
 clean:
 	$(RM) -f *.d *.o *.so
+	$(MAKE) -C test/ clean
 
 .PHONY: test
