@@ -14,7 +14,7 @@ testlib.o: testlib.c
 libtest.so: testlib.o
 	gcc $(CFLAGS) -shared -Wl,-soname,libtest.so -o libtest.so testlib.o
 
-test: libtest.so
+test: test.c libtest.so
 	gcc $(CFLAGS) -o test test.c -L. -ltest
 
 clean:
