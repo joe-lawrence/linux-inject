@@ -12,6 +12,8 @@ extern struct trampolines tramps[];
 extern void patch_constructor(void);
 extern void patch_destructor(void);
 
+static int fully_loaded;
+
 static int rewrite_code(void *dest, void *src, void *backup, size_t len)
 {
 	size_t pageSize;
@@ -44,6 +46,13 @@ static void constructor(void)
 
 	for (i=0; tramps[i].new_addr; i++) {
 
+		if (tramps[i].build_id) {
+			if (build_id_cmp(tramps[i].map_name, tramps[i].build_id)) {
+				printf("Not patching, buildid mismatch: %s\n", tramps[i].map_name);
+				return;
+			}
+		}
+
 		if (!tramps[i].old_addr) {
 
 			unsigned long addr;
@@ -60,8 +69,16 @@ static void constructor(void)
 //			i, tramps[i].old_addr, tramps[i].new_addr, tramps[i].oldname);
 
 		/* Stop now before we break anything */
-		if (!tramps[i].new_addr || !tramps[i].old_addr)
+		if (!tramps[i].new_addr || !tramps[i].old_addr) {
+			printf("Not patching, %s .new_addr=%p, old_addr=%p!\n",
+				tramps[i].oldname, tramps[i].new_addr, tramps[i].old_addr);
 			return;
+		}
+		if (function_on_stack(tramps[i].old_addr, tramps[i].old_size)) {
+			printf("Not patching, %s is on call stack!\n",
+				tramps[i].oldname);
+			return;
+		}
 	}
 
 
@@ -98,8 +115,10 @@ static void constructor(void)
 		trampoline[15] = 0;
 
 		rewrite_code(tramps[i].old_addr, trampoline, tramps[i].old_code, TRAMPOLINE_BYTES);
+		tramps[i].patched = 1;
 	}
 
+	fully_loaded = 1;
 	patch_constructor();
 }
 
@@ -108,12 +127,15 @@ static void destructor(void)
 {
 	int i;
 
+	if (!fully_loaded)
+		return;
+
 	patch_destructor();
 
-	/* Restore the code that we trampled with our trampolines.
-	 * This is probably unnecessary until we support un-patching. */
+	/* Restore the code that we trampled with our trampolines. */
 
 	for (i=0; tramps[i].new_addr; i++) {
-		rewrite_code(tramps[i].old_addr, tramps[i].old_code, NULL, TRAMPOLINE_BYTES);
+		if (tramps[i].patched)
+			rewrite_code(tramps[i].old_addr, tramps[i].old_code, NULL, TRAMPOLINE_BYTES);
 	}
 }

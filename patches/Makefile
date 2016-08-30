@@ -5,10 +5,10 @@ CFLAGS=-fPIC -Wall -ggdb -MP -MD
 all: libupatch.so libupatch2.so test
 
 libupatch.so: constructor.o patches.o utils.o
-	$(CC) -shared -Wl,-soname,$@ -o $@ $^
+	$(CC) -shared -lunwind -Wl,-soname,$@ -o $@ $^
 
 libupatch2.so: constructor.o patches2.o utils.o
-	$(CC) -shared -Wl,-soname,$@ -o $@ $^
+	$(CC) -shared -lunwind -Wl,-soname,$@ -o $@ $^
 
 constructor.o: constructor.c
 	$(CC) $(CFLAGS) -c -o $@ $<

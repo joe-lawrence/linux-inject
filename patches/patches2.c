@@ -31,16 +31,20 @@ void patched_pgm_function2(int a, int b, int c, int d, int e, int f, int g, int 
 
 struct trampolines tramps[] = {
 
-	{ .oldname  = "lib_private",
+	{ .map_name = "/tmp/linux-inject/patches/test/libtest.so",
+	  .build_id = "19549297ab65e6a2bba573f0ae070234b59593b1",	/* readelf -n test/libtest.so | grep Build */
+	  .oldname  = "lib_private",
 	  .new_addr = patched_lib_private2,
-	  .map_name = "/tmp/linux-inject/patches/test/libtest.so",
-	  .offset   = 0x0000000000000758,	/* nm libtest.so | grep lib_private */
+	  .offset   = 0x0000000000000758,				/* nm test/libtest.so | grep lib_private */
+	  .old_size = 0x000000000000006c,				/* nm -S test/libtest.so | grep lib_private */
 	  .type     = T_OFFSET_REL, },
 
-	{ .oldname  = "pgm_function",
+	{ .map_name = "/tmp/linux-inject/patches/test/test",
+	  .build_id = "8e3a59ed66f5ee6d04d0a90c0936b950997db4ab",	/* readelf -n test/test | grep Build */
+	  .oldname  = "pgm_function",
 	  .new_addr = patched_pgm_function2,
-	  .map_name = "/tmp/linux-inject/patches/test/test",
-	  .offset   = 0x00000000004006e0,	/* nm test | grep pgm_function */
+	  .offset   = 0x0000000000400730,				/* nm test/test | grep pgm_function */
+	  .old_size = 0x0000000000000095,				/* nm -S test/libtest.so | grep pgm_function */
 	  .type     = T_OFFSET_ABS, },
 
 	{ 0 } };

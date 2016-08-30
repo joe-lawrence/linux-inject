@@ -1,0 +1,27 @@
+LIBTEST_NAME="/tmp/linux-inject/patches/test/libtest.so"
+LIBTEST_BUILD_ID=$(readelf -n $LIBTEST_NAME | awk '/Build/{print $NF}')
+LIBTEST_OFFSET=$(nm -S $LIBTEST_NAME | awk '/lib_private/{print "0x" $1}')
+LIBTEST_SIZE=$(nm -S $LIBTEST_NAME | awk '/lib_private/{print "0x" $2}')
+
+PGM_NAME="/tmp/linux-inject/patches/test/test"
+PGM_BUILD_ID=$(readelf -n $PGM_NAME | awk '/Build/{print $NF}')
+PGM_OFFSET=$(nm -S $PGM_NAME | awk '/pgm_function/{print "0x" $1}')
+PGM_SIZE=$(nm -S $PGM_NAME | awk '/pgm_function/{print "0x" $2}')
+
+cat <<EOF
+	{ .map_name = "$LIBTEST_NAME",
+	  .build_id = "$LIBTEST_BUILD_ID",	/* readelf -n test/libtest.so | grep Build */
+	  .oldname  = "lib_private",
+	  .new_addr = patched_lib_private,
+	  .offset   = $LIBTEST_OFFSET,				/* nm test/libtest.so | grep lib_private */
+	  .old_size = $LIBTEST_SIZE,				/* nm -S test/libtest.so | grep lib_private */
+	  .type     = T_OFFSET_REL, },
+
+	{ .map_name = "$PGM_NAME",
+	  .build_id = "$PGM_BUILD_ID",	/* readelf -n test/test | grep Build */
+	  .oldname  = "pgm_function",
+	  .new_addr = patched_pgm_function,
+	  .offset   = $PGM_OFFSET,				/* nm test/test | grep pgm_function */
+	  .old_size = $PGM_SIZE,				/* nm -S test/libtest.so | grep pgm_function */
+	  .type     = T_OFFSET_ABS, },
+EOF
