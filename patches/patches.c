@@ -22,15 +22,19 @@ void patch_destructor(void)
 
 /* libtest.so patches */
 
-void patched_lib_private()
+int patched_lib_private(int a, int b, int c, int d, int e, int f, int g, int h)
 {
-	printf("\e[33m%s\e[0m\n", __func__);
+	printf("\e[33m%s\e[0m\targs: [%d %d %d %d  %d %d %d %d]\n", __func__,
+		a, b, c, d, e, f, g, h);
+
+	return 30;
 }
 
 /* test patches */
-void patched_pgm_function()
+void patched_pgm_function(int a, int b, int c, int d, int e, int f, int g, int h)
 {
-	printf("\e[33m%s\e[0m\n", __func__);
+	printf("\e[33m%s\e[0m\targs: [%d %d %d %d  %d %d %d %d]\n", __func__,
+		a, b, c, d, e, f, g, h);
 }
 
 
