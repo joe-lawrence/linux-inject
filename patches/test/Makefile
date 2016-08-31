@@ -1,4 +1,4 @@
-# CFLAGS="-O -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2" 
+# CFLAGS="-O -fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2"
 # LDFLAGS="-Wl,-z,now -Wl,-z,relro"
 
 CFLAGS=-Wall -ggdb -MP -MD
@@ -6,7 +6,7 @@ CFLAGS=-Wall -ggdb -MP -MD
 -include $(SRC:.cpp=.d)
 
 
-all: test
+all: test test3
 
 testlib.o: testlib.c
 	gcc $(CFLAGS) -c -fPIC -o testlib.o testlib.c
@@ -17,5 +17,8 @@ libtest.so: testlib.o
 test: test.c libtest.so
 	gcc $(CFLAGS) -o test test.c -L. -ltest
 
+test3: test3.c libtest.so
+	gcc $(CFLAGS) -o test3 test3.c -lpthread
+
 clean:
-	$(RM) -f test *.d *.o *.so
+	$(RM) -f test test3 *.d *.o *.so

@@ -8,6 +8,13 @@ PGM_BUILD_ID=$(readelf -n $PGM_NAME | awk '/Build/{print $NF}')
 PGM_OFFSET=$(nm -S $PGM_NAME | awk '/pgm_function/{print "0x" $1}')
 PGM_SIZE=$(nm -S $PGM_NAME | awk '/pgm_function/{print "0x" $2}')
 
+TEST3_NAME="/tmp/linux-inject/patches/test/test3"
+TEST3_BUILD_ID=$(readelf -n $TEST3_NAME | awk '/Build/{print $NF}')
+TEST3_OFFSET=$(nm -S $TEST3_NAME | awk '/my_print/{print "0x" $1}')
+TEST3_SIZE=$(nm -S $TEST3_NAME | awk '/my_print/{print "0x" $2}')
+
+
+
 cat <<EOF
 	{ .map_name = "$LIBTEST_NAME",
 	  .build_id = "$LIBTEST_BUILD_ID",	/* readelf -n test/libtest.so | grep Build */
@@ -24,4 +31,14 @@ cat <<EOF
 	  .offset   = $PGM_OFFSET,				/* nm test/test | grep pgm_function */
 	  .old_size = $PGM_SIZE,				/* nm -S test/libtest.so | grep pgm_function */
 	  .type     = T_OFFSET_ABS, },
+
+
+	{ .map_name = "$TEST3_NAME",
+	  .build_id = "$TEST3_BUILD_ID",	/* readelf -n test/test | grep Build */
+	  .oldname  = "my_print",
+	  .new_addr = patched_my_print,
+	  .offset   = $TEST3_OFFSET,				/* nm test/test | grep my_print */
+	  .old_size = $TEST3_SIZE,				/* nm -S test/libtest.so | grep my_print */
+	  .type     = T_OFFSET_ABS, },
+
 EOF

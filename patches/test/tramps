@@ -1,0 +1,15 @@
+	{ .map_name = "/tmp/linux-inject/patches/test/libtest.so",
+	  .build_id = "",	/* readelf -n test/libtest.so | grep Build */
+	  .oldname  = "lib_private",
+	  .new_addr = patched_lib_private,
+	  .offset   = ,				/* nm test/libtest.so | grep lib_private */
+	  .old_size = ,				/* nm -S test/libtest.so | grep lib_private */
+	  .type     = T_OFFSET_REL, },
+
+	{ .map_name = "/tmp/linux-inject/patches/test/test",
+	  .build_id = "",	/* readelf -n test/test | grep Build */
+	  .oldname  = "pgm_function",
+	  .new_addr = patched_pgm_function,
+	  .offset   = ,				/* nm test/test | grep pgm_function */
+	  .old_size = ,				/* nm -S test/libtest.so | grep pgm_function */
+	  .type     = T_OFFSET_ABS, },

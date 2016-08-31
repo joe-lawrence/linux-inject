@@ -2,12 +2,15 @@ CFLAGS=-fPIC -Wall -ggdb -MP -MD
 
 -include $(SRC:.cpp=.d)
 
-all: libupatch.so libupatch2.so test
+all: libupatch.so libupatch2.so libupatch3.so test
 
 libupatch.so: constructor.o patches.o utils.o
 	$(CC) -shared -lunwind -Wl,-soname,$@ -o $@ $^
 
 libupatch2.so: constructor.o patches2.o utils.o
+	$(CC) -shared -lunwind -Wl,-soname,$@ -o $@ $^
+
+libupatch3.so: constructor.o patches3.o utils.o
 	$(CC) -shared -lunwind -Wl,-soname,$@ -o $@ $^
 
 constructor.o: constructor.c
