@@ -6,7 +6,7 @@ CFLAGS=-Wall -ggdb -MP -MD
 -include $(SRC:.cpp=.d)
 
 
-all: test test3
+all: test test3 GHOST
 
 testlib.o: testlib.c
 	gcc $(CFLAGS) -c -fPIC -o testlib.o testlib.c
@@ -20,5 +20,8 @@ test: test.c libtest.so
 test3: test3.c libtest.so
 	gcc $(CFLAGS) -o test3 test3.c -lpthread
 
+GHOST: GHOST.c
+	gcc GHOST.c -o GHOST
+
 clean:
-	$(RM) -f test test3 *.d *.o *.so
+	$(RM) -f test test3 GHOST *.d *.o *.so
