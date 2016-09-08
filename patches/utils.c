@@ -14,6 +14,7 @@ unsigned long get_dso_base(const char *path, const char *sym)
 	struct stat st;
 	FILE *file;
 	char buf[5000];
+	unsigned long last_vm_start = -1;
 
 	lstat(path, &st);
 		
@@ -45,14 +46,14 @@ unsigned long get_dso_base(const char *path, const char *sym)
 			continue;
 		}
 
-		if (st.st_ino == ino) {
-			fclose(file);
-			return vm_start;
+		if ((st.st_ino == ino) &&
+		    (r == 'r' && w == '-' && x == 'x' && s == 'p')) {
+			last_vm_start = vm_start;
 		}
 	}
 	fclose(file);
 
-	return -1;
+	return last_vm_start;
 }
 
 
