@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include <sys/user.h>
 #include <wait.h>
 
@@ -144,6 +145,21 @@ int main(int argc, char** argv)
 	{
 		fprintf(stderr, "can't find file \"%s\"\n", libname);
 		return 1;
+	}
+
+	if(!strcmp(command, "-d"))
+	{
+		void *handle;
+
+		handle = dlopen(libPath, RTLD_NOW);
+		if (!handle) {
+			fprintf(stderr, "%s\n", dlerror());
+			return 1;
+		}
+
+		printf("success!\n");
+		dlclose(handle);
+		return 0;
 	}
 
 	if(!strcmp(command, "-n"))
