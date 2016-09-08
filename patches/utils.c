@@ -73,7 +73,7 @@ unsigned long get_dso_base(const char *path, const char *sym)
 #  define ElfW(type) Elf32_##type
 #endif
 
-int build_id_cmp(char *thefilename, char *bid)
+int build_id_cmp(const char *thefilename, char *bid)
 {
 	FILE *thefile;
 	struct stat statbuf;

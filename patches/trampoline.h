@@ -10,8 +10,8 @@ struct trampolines {
 	void *old_addr;
 	size_t old_size;
 	void *new_addr;
-	char *oldname;
-	char *map_name;
+	const char *oldname;
+	const char *map_name;
 	unsigned long offset;
 	enum offset_type type;
 	int patched;
