@@ -45,7 +45,7 @@ For example, before [linux-inject](https://github.com/gaffe23/linux-inject):
 	   0x00000000004007ba <+58>:    je     0x4007c1 <pgm_function+65>
 	   0x00000000004007bc <+60>:    callq  0x400640 <__stack_chk_fail@plt>
 	   0x00000000004007c1 <+65>:    add    $0x18,%rsp
-	   0x00000000004007c5 <+69>:    retq   
+	   0x00000000004007c5 <+69>:    retq
 	End of assembler dump.
 
 After [linux-inject](https://github.com/gaffe23/linux-inject) is executed, the process's ```/proc/PID/maps``` file is updated to reflect the new shared library mappings:
@@ -81,7 +81,7 @@ After ```linux-inject``` is executed, code trampolines are set in place, patchin
 	   0x00000000004007ba <+58>:    je     0x4007c1 <pgm_function+65>
 	   0x00000000004007bc <+60>:    callq  0x400640 <__stack_chk_fail@plt>
 	   0x00000000004007c1 <+65>:    add    $0x18,%rsp
-	   0x00000000004007c5 <+69>:    retq   
+	   0x00000000004007c5 <+69>:    retq
 	End of assembler dump.
 
 The trampoline code is fairly simple, but relies on a trick documented on Nikolay Igotti's blog in [Long absolute jumps on AMD64](https://blogs.oracle.com/nike/entry/long_absolute_jumps_on_amd64).  All told, the trampoline amounts to only 16 bytes that we need to manage.
@@ -95,7 +95,6 @@ This proof-of-concept inhereits any limitations of the [linux-inject](https://gi
 3. Target functions (i.e., those to patch) must be at least 16 bytes (the size of the code trampoline) long
 4. During patching operation, target process cannot be running as a gdb, strace or any other ptrace client
 5. [linux-inject](https://github.com/gaffe23/linux-inject) supports x86, x86_64, and ARM, but patches only implements x86_64 code
-6. No protection against patching functions currently executing
 99. Many more, I'm sure
 
 ## Demo
