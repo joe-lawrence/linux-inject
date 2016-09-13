@@ -209,7 +209,7 @@ library injection may be used against real-life vulnerabilities and running
 processes.  On a RHEL7 system, I had no success injecting the GHOST shared
 library un-patch into any binaries that call ```gethostbyname```:
 
-	% for f in *; do objdump $f -DS 2>/dev/null | grep -q gethostbyname && echo "$f - $(pgrep $f)"; done
+	% for f in /sbin/*; do objdump $f -DS 2>/dev/null | grep -q gethostbyname && echo "$(basename $f) - $(pgrep $(basename $f))"; done
 
 	arp
 	auditd - 303 804
@@ -265,3 +265,14 @@ For now, the next step is to modify
 [linux-inject](https://github.com/gaffe23/linux-inject) to also call
 ```dlerror``` so we can get some visibility into why ```dlopen``` consistently
 fails against real world programs.
+
+
+## Step 6 - Update
+
+After a bit of debugging (I attached to a running dhclient, then from gdb
+manually called dlopen and dlerror) I figured out that SELinux was preventing
+me these processes from opening the shared library patch.  With apologies to
+Dan Walsh, I set SELinux to permissive mode and viola -- I could inject the
+GHOST vulnerability .so and verify it in each processes' /proc/PID/maps file.
+
+(Note: auditd still fails the ptrace even with SELinux turned off).
