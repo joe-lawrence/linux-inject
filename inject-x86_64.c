@@ -150,6 +150,19 @@ int main(int argc, char** argv)
 	if(!strcmp(command, "-d"))
 	{
 		void *handle;
+		int i;
+
+		for (i=4; i<argc; i++) {
+
+			char* name = argv[i];
+			char* Path = realpath(name, NULL);
+			handle = dlopen(Path, RTLD_NOW | RTLD_GLOBAL);
+			if (!handle) {
+				printf("Error loading %s\n", Path);
+				fprintf(stderr, "%s\n", dlerror());
+				return 1;
+			}
+		}
 
 		handle = dlopen(libPath, RTLD_NOW);
 		if (!handle) {
