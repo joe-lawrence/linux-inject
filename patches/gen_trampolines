@@ -1,11 +1,13 @@
 #!/bin/bash
 
 declare -a MAP_NAMES=()
+declare -a DEBUG_NAMES=()
 declare -a ENTRY_POINTS=()
 
 while (( "$#" )); do
 
     MAP_NAMES+=($(readlink -f $1))
+    DEBUG_NAMES+=($(readlink -f /usr/lib/debug/$1.debug))
     ENTRY_POINTS+=($2)
     shift
     shift
@@ -30,12 +32,20 @@ echo ""
 i=0;
 for map_name in "${MAP_NAMES[@]}"; do
 
-build_id=$(readelf -n $map_name | awk '/Build/{print $NF}')
-old_name=${ENTRY_POINTS[i]}
-old_offset=$(nm -S $map_name | awk "/\<$old_name\>/{print \$1}")
-old_size=$(nm -S $map_name | awk "/\<$old_name\>/{print \$2}")
+  debug_name=${DEBUG_NAMES[i]}
 
-file $map_name | grep -q 'shared object' && offset="T_OFFSET_REL" || offset="T_OFFSET_ABS"
+  build_id=$(readelf -n $debug_name 2>/dev/null | awk '/Build/{print $NF}')
+  [[ -z "$build_id" ]] && build_id=$(readelf -n $map_name 2>/dev/null | awk '/Build/{print $NF}')
+
+  old_name=${ENTRY_POINTS[i]}
+
+  old_offset=$(nm -S $debug_name 2>/dev/null | awk "/\<$old_name\>/{print \$1}")
+  [[ -z "$old_offset" ]] && old_offset=$(nm -S $map_name 2>/dev/null | awk "/\<$old_name\>/{print \$1}")
+
+  old_size=$(nm -S $debug_name 2>/dev/null | awk "/\<$old_name\>/{print \$2}")
+  [[ -z "$old_size" ]] && old_size=$(nm -S $map_name 2>/dev/null | awk "/\<$old_name\>/{print \$2}")
+
+  file $map_name | grep -q 'shared object' && offset="T_OFFSET_REL" || offset="T_OFFSET_ABS"
 
 cat <<EOF
         { .map_name = "$map_name",
@@ -48,7 +58,7 @@ cat <<EOF
 
 EOF
 
-((i++))
+  ((i++))
 done
 echo "	{ 0 } };"
 
