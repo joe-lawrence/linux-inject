@@ -1,6 +1,9 @@
 #ifndef __TRAMPOLINE_H__
 # define __TRAMPOLINE__
 
+void patch_constructor(void);
+void patch_destructor(void);
+
 #define TRAMPOLINE_BYTES	(16)
 #define BUILD_ID_BYTES		(40)
 

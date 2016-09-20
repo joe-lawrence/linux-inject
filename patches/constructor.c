@@ -3,8 +3,9 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <systemd/sd-journal.h>
 
-#include "trampoline.h"
+#include "upatch.h"
 #include "utils.h"
 
 /* defined by patches.c */
@@ -48,7 +49,7 @@ static void constructor(void)
 
 		if (tramps[i].build_id) {
 			if (build_id_cmp(tramps[i].map_name, tramps[i].build_id)) {
-				printf("Not patching, buildid mismatch: %s\n", tramps[i].map_name);
+				sd_journal_print(LOG_ERR, "Not patching, buildid mismatch: %s\n", tramps[i].map_name);
 				return;
 			}
 		}
@@ -65,22 +66,21 @@ static void constructor(void)
 
 			tramps[i].old_addr = (void *) addr;
 		}
-//		printf("tramps[%d].old_addr = %p, .new_addr = %p, .oldname = %s\n",
-//			i, tramps[i].old_addr, tramps[i].new_addr, tramps[i].oldname);
+		sd_journal_print(LOG_INFO, "tramps[%d].old_addr = %p, .new_addr = %p, .oldname = %s\n",
+			i, tramps[i].old_addr, tramps[i].new_addr, tramps[i].oldname);
 
 		/* Stop now before we break anything */
 		if (!tramps[i].new_addr || !tramps[i].old_addr) {
-			printf("Not patching, %s .new_addr=%p, old_addr=%p!\n",
+			sd_journal_print(LOG_ERR, "Not patching, %s .new_addr=%p, old_addr=%p!\n",
 				tramps[i].oldname, tramps[i].new_addr, tramps[i].old_addr);
 			return;
 		}
 		if (function_on_stack(tramps[i].old_addr, tramps[i].old_size)) {
-			printf("Not patching, %s is on call stack!\n",
+			sd_journal_print(LOG_ERR, "Not patching, %s is on call stack!\n",
 				tramps[i].oldname);
 			return;
 		}
 	}
-
 
 	for (i=0; tramps[i].new_addr; i++) {
 

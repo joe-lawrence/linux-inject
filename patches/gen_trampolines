@@ -16,7 +16,7 @@ done
 
 
 echo "#include <stdlib.h>"
-echo "#include \"trampoline.h\""
+echo "#include <upatch.h>"
 echo ""
 
 i=0;
