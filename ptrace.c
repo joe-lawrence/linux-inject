@@ -5,6 +5,7 @@
 #include <sys/user.h>
 #include <wait.h>
 #include <time.h>
+#include <errno.h>
 
 #include "ptrace.h"
 
@@ -25,13 +26,13 @@ void ptrace_attach(pid_t target)
 
 	if(ptrace(PTRACE_ATTACH, target, NULL, NULL) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_ATTACH) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_ATTACH) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 
 	if(waitpid(target, &waitpidstatus, WUNTRACED) != target)
 	{
-		fprintf(stderr, "waitpid(%d) failed\n", target);
+		fprintf(stderr, "waitpid(%d) failed: %s\n", target, strerror(errno));
 		exit(1);
 	}
 }
@@ -52,7 +53,7 @@ void ptrace_detach(pid_t target)
 {
 	if(ptrace(PTRACE_DETACH, target, NULL, NULL) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_DETACH) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_DETACH) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 }
@@ -75,7 +76,7 @@ void ptrace_getregs(pid_t target, struct REG_TYPE* regs)
 {
 	if(ptrace(PTRACE_GETREGS, target, NULL, regs) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_GETREGS) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_GETREGS) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 }
@@ -101,7 +102,7 @@ void ptrace_cont(pid_t target)
 
 	if(ptrace(PTRACE_CONT, target, NULL, NULL) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_CONT) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_CONT) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 
@@ -128,7 +129,7 @@ void ptrace_setregs(pid_t target, struct REG_TYPE* regs)
 {
 	if(ptrace(PTRACE_SETREGS, target, NULL, regs) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_SETREGS) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_SETREGS) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 }
@@ -154,7 +155,7 @@ siginfo_t ptrace_getsiginfo(pid_t target)
 	siginfo_t targetsig;
 	if(ptrace(PTRACE_GETSIGINFO, target, NULL, &targetsig) == -1)
 	{
-		fprintf(stderr, "ptrace(PTRACE_GETSIGINFO) failed\n");
+		fprintf(stderr, "ptrace(PTRACE_GETSIGINFO) failed: %s\n", strerror(errno));
 		exit(1);
 	}
 	return targetsig;
@@ -185,7 +186,7 @@ void ptrace_read(int pid, unsigned long addr, void *vptr, int len)
 		word = ptrace(PTRACE_PEEKTEXT, pid, addr + bytesRead, NULL);
 		if(word == -1)
 		{
-			fprintf(stderr, "ptrace(PTRACE_PEEKTEXT) failed\n");
+			fprintf(stderr, "ptrace(PTRACE_PEEKTEXT) failed: %s\n", strerror(errno));
 			exit(1);
 		}
 		bytesRead += sizeof(word);
@@ -218,7 +219,7 @@ void ptrace_write(int pid, unsigned long addr, void *vptr, int len)
 		word = ptrace(PTRACE_POKETEXT, pid, addr + byteCount, word);
 		if(word == -1)
 		{
-			fprintf(stderr, "ptrace(PTRACE_POKETEXT) failed\n");
+			fprintf(stderr, "ptrace(PTRACE_POKETEXT) failed: %s\n", strerror(errno));
 			exit(1);
 		}
 		byteCount += sizeof(word);
