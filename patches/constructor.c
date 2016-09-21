@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/mman.h>
 #include <systemd/sd-journal.h>
 
@@ -29,7 +30,10 @@ static int rewrite_code(void *dest, void *src, void *backup, size_t len)
 	if (backup)
 		memcpy(backup, dest, len);
 
-	mprotect((void *) pageStart, end - pageStart, PROT_READ | PROT_WRITE | PROT_EXEC);
+	if (mprotect((void *) pageStart, end - pageStart, PROT_READ | PROT_WRITE | PROT_EXEC)) {
+		sd_journal_print(LOG_ERR, "Not patching mprotect failed: %s\n", strerror(errno));
+		return -1;
+	}
 
 	memcpy(dest, src, len);
 
@@ -114,7 +118,9 @@ static void constructor(void)
 		trampoline[14] = 0;
 		trampoline[15] = 0;
 
-		rewrite_code(tramps[i].old_addr, trampoline, tramps[i].old_code, TRAMPOLINE_BYTES);
+		if (rewrite_code(tramps[i].old_addr, trampoline, tramps[i].old_code, TRAMPOLINE_BYTES))
+			continue;
+
 		tramps[i].patched = 1;
 	}
 
