@@ -1,4 +1,9 @@
 # patches
+
+**!!! Note !!!**
+This file describes the state of this project on Sep 13th.  See this [commit](https://github.com/joe-lawrence/linux-inject/tree/d5dcc43f2221320c5a307e25ba7b5a053b1fcfc4/patches) for reference.
+
+
 ## Proof-of-concept tool for patching a running process
 The patches/ subdirectory provides a shared library "patch" for use with [linux-inject](https://github.com/gaffe23/linux-inject) project.  Code inside the shared library patch is intended to replace broken or vulnerable code inside a running process with out restart.
 
