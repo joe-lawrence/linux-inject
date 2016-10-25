@@ -1,25 +1,18 @@
 #!/bin/bash
 
 if [ "$#" -lt 2 ]; then
-   echo "gdb_inject.sh <process_name> <shared library path>"
+   echo "gdb_inject.sh <shared library path> <pid>"
    echo
    exit
 fi
 
 script=$(mktemp)
-for p in $(pgrep $1); do
 
-    echo "attach $p" >> $script
-    echo "call (void *) __libc_dlopen_mode(\"$2\", 1)" >> $script
-    echo "detach" >> $script
+echo "attach $1" >> $script
+echo "call (void *) __libc_dlopen_mode(\"$2\", 1)" >> $script
+echo "detach" >> $script
 
-done
 echo "q" >> $script
 
 gdb -q  --command=$script
 rm $script
-
-for p in $(pgrep $1); do
-    echo $p
-    grep upatch /proc/$p/maps
-done

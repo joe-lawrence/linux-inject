@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]; then
+    echo "upatch <shared library path> <pid1> <pidn...>"
+    echo
+    echo "    e.g. upatch /usr/lib64/libupatch_cve_test.so 17744 17745"
+    echo
+    exit
+fi
+
+l=$1
+shift
+
+for p in $@; do
+
+    [[ "$p" == "1" ]] && continue;
+
+    u=$(grep "$l" /proc/$p/maps 2>/dev/null)
+    if [[ "$u" ]]; then
+        echo "$p already patched by $l"
+        continue
+    fi
+
+    # ./inject -p $p $l
+    ./gdb_inject $p $l
+
+done

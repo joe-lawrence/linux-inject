@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [[ "$#" -ne 2 ]]; then
+    echo "Usage:"
+    echo "  find_nm_info <RPM package> <symbol name>"
+    echo
+    echo "    e.g. find_nm_info httpd-debuginfo ap_process_request_internal"
+    echo
+    exit 1
+fi
+
+rpm -qi $1 &>/dev/null || (echo "$1 not installed!" && exit 1)
+
+for f in $(rpm -ql "$1" | grep -v '\.build-id'); do
+    info=$(nm -S $f | grep "\<$2\>")
+    [[ "$info" ]] && echo -e "$f\n$info\n";
+done 2>/dev/null
+

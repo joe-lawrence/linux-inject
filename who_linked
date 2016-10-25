@@ -1,0 +1,42 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
+    echo "who_linked [-f] <shared library path>"
+    echo
+    exit
+fi
+
+if [[ "$1" == "-f" ]]; then
+    arg_full=true
+    shift
+fi
+
+arg_lib=$(readlink -f $1)
+if [[ ! -e $arg_lib ]] ; then
+    echo "Can't find $arg_lib"
+    exit 1
+fi
+
+
+for p in /proc/[0-9]*; do
+
+    l=$(grep $arg_lib $p/maps 2>/dev/null)
+    u=$(grep "$arg_lib" $p/maps 2>/dev/null)
+
+    [[ "$l" ]] || continue
+
+    [[ "$arg_full" = true ]] && info="$(basename $(readlink -f $p/exe))($(basename $p))" \
+                             || info="$(basename $p)"
+
+    if [[ "$l" && "$u" ]] ; then
+        echo -n "$info "
+
+        if [[ "$arg_full" = true ]]; then
+            libs=$(grep -o 'libupatch_.*.so' $p/maps 2>/dev/null | sort -u | tr '\n' ' ')
+            [[ "$libs" ]] && echo -n " => $libs"
+            echo
+        fi
+    fi
+
+done
+echo

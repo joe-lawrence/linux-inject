@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for p in /proc/[0-9]*; do
+
+    libs=$(grep -o 'libupatch_.*.so' $p/maps 2>/dev/null | sort -u | tr '\n' ' ')
+    [[ "$libs" ]] && echo "$(basename $(readlink -f $p/exe))($(basename $p)) => $libs"
+
+done
