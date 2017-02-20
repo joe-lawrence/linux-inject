@@ -12,7 +12,7 @@ fi
 rpm -qi $1 &>/dev/null || (echo "$1 not installed!" && exit 1)
 
 for f in $(rpm -ql "$1" | grep -v '\.build-id'); do
-    info=$(nm -S $f | grep "\<$2\>")
+    info=$(readelf -a --wide $f | grep "$2")
     [[ "$info" ]] && echo -e "$f\n$info\n";
 done 2>/dev/null
 
