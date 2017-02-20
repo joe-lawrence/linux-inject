@@ -1,5 +1,5 @@
 CFLAGS=-fPIC -Wall -ggdb -MP -MD
-SRC=constructor.c utils.c
+SRC=upatch.c
 
 -include $(SRC:.c=.d)
 

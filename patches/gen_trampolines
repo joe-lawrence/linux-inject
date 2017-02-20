@@ -60,5 +60,19 @@ EOF
 
   ((i++))
 done
-echo "	{ 0 } };"
 
+cat <<EOF
+	{ 0 } };
+
+__attribute__((constructor))
+static void constructor(void)
+{
+	libupatch_load(tramps);
+}
+
+__attribute__((destructor))
+static void destructor(void)
+{
+	libupatch_unload(tramps);
+}
+EOF

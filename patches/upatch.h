@@ -22,4 +22,7 @@ struct trampolines {
 	char build_id[BUILD_ID_BYTES+1];
 };
 
+void libupatch_load(struct trampolines []);
+void libupatch_unload(struct trampolines []);
+
 #endif
