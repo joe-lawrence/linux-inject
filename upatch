@@ -21,7 +21,7 @@ for p in $@; do
         continue
     fi
 
-    # ./inject -p $p $l
+    #./inject -p $p $l
     ./gdb_inject $p $l
 
 done

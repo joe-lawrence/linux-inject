@@ -5,10 +5,12 @@
 UPATCH=cve_2015_1234
 TRAMPOLINES := \
 	/usr/lib64/libdns.so.100 dns_tkey_processquery
+PRIV_FUNCS := \
+	/usr/bin/postgres chr chrnamed \
 
 PATCH_SRC=patches.c
 
-patches.o: patches.c
+patches.o: patches.c upatch_private.h
 	# build line for patches.o
 
 #
@@ -28,6 +30,9 @@ libupatch_$(UPATCH).so: $(PATCH_SRC:.c=.o) trampolines.o
 trampolines.c:
 	../gen_trampolines ${TRAMPOLINES} > $@
 
+upatch_private.h:
+	../gen_priv_funcs ${PRIV_FUNCS} > $@
+
 install: all
 	install -D libupatch_$(UPATCH).so /usr/lib64
 	ldconfig -n /usr/lib64
@@ -37,6 +42,6 @@ uninstall:
 	ldconfig -n /usr/lib64
 
 clean:
-	$(RM) -f trampolines.c *.d *.o *.so
+	$(RM) -f trampolines.c upatch_private.h *.d *.o *.so
 
 .PHONY: install uninstall clean

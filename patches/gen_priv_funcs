@@ -1,0 +1,45 @@
+#!/bin/bash
+
+declare -a MAP_NAMES=()
+declare -a DEBUG_NAMES=()
+declare -a RETURN_TYPES=()
+declare -a ENTRY_POINTS=()
+
+while (( "$#" )); do
+
+    MAP_NAMES+=($(readlink -f $1))
+    DEBUG_NAMES+=($(readlink -f /usr/lib/debug/$1.debug))
+    RETURN_TYPES+=("$2")
+    ENTRY_POINTS+=($3)
+    shift
+    shift
+    shift
+
+done
+
+
+i=0;
+for map_name in "${MAP_NAMES[@]}"; do
+
+  debug_name=${DEBUG_NAMES[i]}
+  entry_name=${ENTRY_POINTS[i]}
+
+  addr=$(nm -S $debug_name 2>/dev/null | awk "/\<$entry_name\>/{print \"0x\" \$1}")
+  if [[ -z "$addr" ]] ; then
+    addr=$(nm -S $map_name 2>/dev/null | awk "/\<$entry_name\>/{print \"0x\" \$1}")
+    from=$map_name
+  else
+    from=$debug_name
+  fi
+
+  return_type=${RETURN_TYPES[i]}
+
+cat <<EOF
+/* From $from */
+typedef $return_type __$entry_name();
+#define $entry_name ((__$entry_name *) $addr)
+
+EOF
+
+  ((i++))
+done
